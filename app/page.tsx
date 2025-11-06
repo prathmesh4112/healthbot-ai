@@ -1,30 +1,8 @@
 "use client";
 
-/**
- * Enhanced HealthBot AI Chat UI (TypeScript, React + Framer Motion)
- * 
- * New Features:
- * - Advanced glassmorphism design with blur effects
- * - Gradient mesh background animations
- * - Smooth micro-interactions throughout
- * - Enhanced message bubbles with avatars and reactions
- * - Voice input indicator (UI only)
- * - Advanced typing animations
- * - Message reaction emojis
- * - Chat export with multiple formats
- * - Enhanced mobile responsiveness
- * - Floating action menu
- * - Advanced scroll animations
- * - Loading skeleton states
- * - Toast notifications
- * - Advanced dark mode with smooth transitions
- */
-
 import React, { useEffect, useRef, useState } from "react";
-import { Icon } from "@iconify/react";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
-
-/* ----------------------------- Types ----------------------------- */
+import { Camera, Menu, X, Plus, ChevronLeft, ChevronRight, Sun, Moon, MoreVertical, Send, Mic, Trash2, Copy, Download, MessageSquare, User, Bot, Clock, ThumbsUp, Heart, Smile, AlertCircle, CheckCircle, Info, Shield } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Message = {
   role: "user" | "bot";
@@ -38,7 +16,6 @@ type ChatHistory = {
   title: string;
   messages: Message[];
   createdAt?: string;
-  avatar?: string;
   color?: string;
 };
 
@@ -48,17 +25,15 @@ type Toast = {
   type: "success" | "error" | "info";
 };
 
-/* ------------------------ Animated Background Mesh ------------------------- */
-
 function AnimatedMeshBackground({ darkMode }: { darkMode: boolean }) {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
       <motion.div
         className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full blur-3xl"
         style={{
           background: darkMode
-            ? "radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)"
-            : "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)",
+            ? "radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%)"
+            : "radial-gradient(circle, rgba(0, 0, 0, 0.15) 0%, transparent 70%)",
         }}
         animate={{
           x: [0, 100, 0],
@@ -75,8 +50,8 @@ function AnimatedMeshBackground({ darkMode }: { darkMode: boolean }) {
         className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full blur-3xl"
         style={{
           background: darkMode
-            ? "radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%)"
-            : "radial-gradient(circle, rgba(244, 114, 182, 0.3) 0%, transparent 70%)",
+            ? "radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%)"
+            : "radial-gradient(circle, rgba(0, 0, 0, 0.1) 0%, transparent 70%)",
         }}
         animate={{
           x: [0, -100, 0],
@@ -92,8 +67,6 @@ function AnimatedMeshBackground({ darkMode }: { darkMode: boolean }) {
     </div>
   );
 }
-
-/* ------------------------ Floating Particles ------------------------- */
 
 function FloatingParticles({ count = 20, darkMode }: { count?: number; darkMode: boolean }) {
   const [particles, setParticles] = useState<{ top: string; left: string; delay: number; duration: number }[]>([]);
@@ -113,11 +86,11 @@ function FloatingParticles({ count = 20, darkMode }: { count?: number; darkMode:
       {particles.map((p, i) => (
         <motion.div
           key={i}
-          className={`absolute w-1 h-1 rounded-full ${darkMode ? "bg-purple-400" : "bg-indigo-400"}`}
+          className={`absolute w-1 h-1 rounded-full ${darkMode ? "bg-white" : "bg-black"}`}
           style={{ top: p.top, left: p.left }}
           initial={{ opacity: 0, scale: 0 }}
           animate={{
-            opacity: [0, 0.6, 0],
+            opacity: [0, 0.4, 0],
             scale: [0, 1.5, 0],
             y: [0, -100, -200],
           }}
@@ -132,8 +105,6 @@ function FloatingParticles({ count = 20, darkMode }: { count?: number; darkMode:
     </div>
   );
 }
-
-/* ------------------------- Storage Helpers ------------------------ */
 
 const STORAGE_KEY = "healthbot_chat_history_v2";
 
@@ -159,8 +130,6 @@ function saveHistory(history: ChatHistory[]) {
   }
 }
 
-/* ------------------------- Toast Notification ------------------------ */
-
 function ToastNotification({ toasts, removeToast }: { toasts: Toast[]; removeToast: (id: string) => void }) {
   return (
     <div className="fixed top-4 right-4 z-[100] space-y-2">
@@ -173,25 +142,18 @@ function ToastNotification({ toasts, removeToast }: { toasts: Toast[]; removeToa
             exit={{ opacity: 0, x: 100, scale: 0.8 }}
             className={`px-4 py-3 rounded-xl shadow-2xl backdrop-blur-xl border flex items-center gap-3 min-w-[280px] ${
               toast.type === "success"
-                ? "bg-green-500/90 text-white border-green-400"
+                ? "bg-black text-white border-white"
                 : toast.type === "error"
-                ? "bg-red-500/90 text-white border-red-400"
-                : "bg-blue-500/90 text-white border-blue-400"
+                ? "bg-red-600 text-white border-red-400"
+                : "bg-gray-800 text-white border-gray-600"
             }`}
           >
-            <Icon
-              icon={
-                toast.type === "success"
-                  ? "mdi:check-circle"
-                  : toast.type === "error"
-                  ? "mdi:alert-circle"
-                  : "mdi:information"
-              }
-              className="h-5 w-5"
-            />
+            {toast.type === "success" && <CheckCircle className="h-5 w-5" />}
+            {toast.type === "error" && <AlertCircle className="h-5 w-5" />}
+            {toast.type === "info" && <Info className="h-5 w-5" />}
             <span className="flex-1 text-sm font-medium">{toast.message}</span>
             <button onClick={() => removeToast(toast.id)} className="hover:bg-white/20 rounded p-1">
-              <Icon icon="mdi:close" className="h-4 w-4" />
+              <X className="h-4 w-4" />
             </button>
           </motion.div>
         ))}
@@ -199,8 +161,6 @@ function ToastNotification({ toasts, removeToast }: { toasts: Toast[]; removeToa
     </div>
   );
 }
-
-/* ----------------------------- Main Page ------------------------------ */
 
 export default function Page() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -219,8 +179,6 @@ export default function Page() {
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  /* -------------------- Toast System -------------------- */
-
   const addToast = (message: string, type: Toast["type"] = "info") => {
     const id = Date.now().toString();
     setToasts((prev) => [...prev, { id, message, type }]);
@@ -230,8 +188,6 @@ export default function Page() {
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
-
-  /* -------------------- Initial Load -------------------- */
 
   useEffect(() => {
     const saved = loadHistory();
@@ -245,7 +201,7 @@ export default function Page() {
           title: "Welcome Chat",
           messages: [],
           createdAt: new Date().toISOString(),
-          color: "from-indigo-500 to-purple-500",
+          color: "from-black to-gray-800",
         },
       ];
       setHistory(initial);
@@ -262,8 +218,6 @@ export default function Page() {
     else document.documentElement.classList.remove("dark");
   }, [darkMode]);
 
-  /* ------------------------- Chat Helpers ------------------------- */
-
   function formatTimeISO(date = new Date()) {
     return date.toISOString();
   }
@@ -276,7 +230,7 @@ export default function Page() {
           title: `Chat ${activeIndex + 1}`,
           messages: [],
           createdAt: new Date().toISOString(),
-          color: "from-indigo-500 to-purple-500",
+          color: "from-black to-gray-800",
         };
       }
       next[activeIndex] = { ...next[activeIndex], messages: newMessages };
@@ -292,11 +246,9 @@ export default function Page() {
 
   function createNewChat(title = "New Chat") {
     const colors = [
-      "from-indigo-500 to-purple-500",
-      "from-pink-500 to-rose-500",
-      "from-cyan-500 to-blue-500",
-      "from-green-500 to-emerald-500",
-      "from-orange-500 to-red-500",
+      "from-black to-gray-800",
+      "from-gray-900 to-gray-700",
+      "from-gray-800 to-black",
     ];
     const newChat: ChatHistory = {
       title,
@@ -330,7 +282,7 @@ export default function Page() {
           title: "New Chat",
           messages: [],
           createdAt: new Date().toISOString(),
-          color: "from-indigo-500 to-purple-500",
+          color: "from-black to-gray-800",
         };
         return [defaultChat];
       }
@@ -341,8 +293,6 @@ export default function Page() {
     });
     addToast("Chat deleted", "info");
   }
-
-  /* ------------------------- Sending Flow ------------------------- */
 
   async function handleSend() {
     const content = input.trim();
@@ -401,8 +351,6 @@ export default function Page() {
     }
   }
 
-  /* -------------------- Navigation -------------------- */
-
   function goPrevChat() {
     if (history.length === 0) return;
     const idx = Math.max(0, activeIndex - 1);
@@ -416,8 +364,6 @@ export default function Page() {
     setActiveIndex(idx);
     setMessages(history[idx]?.messages ?? []);
   }
-
-  /* --------------------- Textarea Helpers --------------------- */
 
   function autoResize() {
     if (!textareaRef.current) return;
@@ -436,8 +382,6 @@ export default function Page() {
       handleSend();
     }
   };
-
-  /* -------------------- Scroll Effects -------------------- */
 
   useEffect(() => {
     if (!chatBodyRef.current) return;
@@ -462,26 +406,6 @@ export default function Page() {
     });
   }
 
-  /* -------------------- Quick Suggestions -------------------- */
-
-  const quickSuggestions = [
-    { text: "Headache for 2 days", icon: "mdi:head-question" },
-    { text: "High fever and chills", icon: "mdi:thermometer" },
-    { text: "Stomach pain after meals", icon: "mdi:stomach" },
-    { text: "Sore throat and cough", icon: "mdi:lungs" },
-    { text: "Dizziness and nausea", icon: "mdi:motion-sensor" },
-  ];
-
-  function applyQuickSuggestion(text: string, sendImmediately = false) {
-    setInput(text);
-    setTimeout(() => {
-      autoResize();
-      if (sendImmediately) handleSend();
-    }, 10);
-  }
-
-  /* -------------------- Message Reactions -------------------- */
-
   function addReaction(messageId: string, emoji: string) {
     setMessages((prev) =>
       prev.map((msg) => {
@@ -497,8 +421,6 @@ export default function Page() {
       })
     );
   }
-
-  /* -------------------- Export Functions -------------------- */
 
   function exportChatAsJSON() {
     const dataStr = JSON.stringify(history[activeIndex] ?? { title: "chat", messages: [] }, null, 2);
@@ -532,23 +454,16 @@ export default function Page() {
     }
   }
 
-  /* -------------------- UI Helpers -------------------- */
-
   const activeTitle = history[activeIndex]?.title ?? "AI Health Assistant";
-  const activeColor = history[activeIndex]?.color ?? "from-indigo-500 to-purple-500";
-
-  /* -------------------- Render -------------------- */
+  const activeColor = history[activeIndex]?.color ?? "from-black to-gray-800";
 
   return (
-    <div className={`flex h-screen w-full relative overflow-hidden transition-colors duration-500 ${darkMode ? "bg-gray-950 text-white" : "bg-gray-50 text-black"}`}>
-      {/* Animated Background */}
+    <div className={`flex h-screen w-full relative overflow-hidden transition-colors duration-500 ${darkMode ? "bg-black text-white" : "bg-white text-black"}`}>
       <AnimatedMeshBackground darkMode={darkMode} />
       <FloatingParticles count={15} darkMode={darkMode} />
 
-      {/* Toast Notifications */}
       <ToastNotification toasts={toasts} removeToast={removeToast} />
 
-      {/* -------------------- Intro Hero -------------------- */}
       <AnimatePresence>
         {showIntro && (
           <motion.div
@@ -558,8 +473,8 @@ export default function Page() {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.4 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600" />
-            <FloatingParticles count={40} darkMode={false} />
+            <div className={`absolute inset-0 ${darkMode ? "bg-black" : "bg-white"}`} />
+            <FloatingParticles count={40} darkMode={darkMode} />
 
             <motion.div
               className="relative z-10"
@@ -572,16 +487,16 @@ export default function Page() {
                 animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.05, 1] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
-                <div className="w-24 h-24 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center shadow-2xl border border-white/30">
-                  <Icon icon="mdi:robot-love" className="w-14 h-14 text-white" />
+                <div className={`w-24 h-24 ${darkMode ? "bg-white/20" : "bg-black/20"} backdrop-blur-xl rounded-3xl flex items-center justify-center shadow-2xl border ${darkMode ? "border-white/30" : "border-black/30"}`}>
+                  <Bot className={`w-14 h-14 ${darkMode ? "text-white" : "text-black"}`} />
                 </div>
               </motion.div>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-4 drop-shadow-2xl text-white">
-                Welcome to <span className="text-yellow-300">HealthBot AI</span>
+              <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-black mb-4 drop-shadow-2xl ${darkMode ? "text-white" : "text-black"}`}>
+                Welcome to <span className={darkMode ? "text-gray-400" : "text-gray-600"}>HealthBot AI</span>
               </h1>
 
-              <p className="text-lg sm:text-xl max-w-3xl mx-auto mb-8 opacity-95 text-white/90 leading-relaxed">
+              <p className={`text-lg sm:text-xl max-w-3xl mx-auto mb-8 opacity-95 ${darkMode ? "text-white/90" : "text-black/90"} leading-relaxed`}>
                 Your intelligent health companion powered by advanced AI. Get quick symptom analysis, health guidance, and
                 personalized wellness insights — available 24/7.
               </p>
@@ -591,9 +506,9 @@ export default function Page() {
                   onClick={() => setShowIntro(false)}
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-white text-indigo-700 font-bold rounded-2xl shadow-2xl hover:shadow-white/20 transition-all flex items-center gap-2 group"
+                  className={`px-8 py-4 ${darkMode ? "bg-white text-black" : "bg-black text-white"} font-bold rounded-2xl shadow-2xl transition-all flex items-center gap-2 group`}
                 >
-                  <Icon icon="mdi:chat" className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                  <MessageSquare className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                   Start Chatting
                 </motion.button>
 
@@ -601,26 +516,25 @@ export default function Page() {
                   onClick={() => {
                     createNewChat("Quick Health Check");
                     setShowIntro(false);
-                    setTimeout(() => applyQuickSuggestion("I have a persistent headache", true), 300);
                   }}
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-indigo-800/80 backdrop-blur-xl text-white font-bold rounded-2xl shadow-2xl border-2 border-white/30 hover:bg-indigo-700/80 transition-all flex items-center gap-2 group"
+                  className={`px-8 py-4 ${darkMode ? "bg-gray-800/80 border-white/30" : "bg-gray-200/80 border-black/30"} backdrop-blur-xl ${darkMode ? "text-white" : "text-black"} font-bold rounded-2xl shadow-2xl border-2 transition-all flex items-center gap-2 group`}
                 >
-                  <Icon icon="mdi:lightning-bolt" className="w-5 h-5 group-hover:scale-125 transition-transform" />
+                  <span className="w-5 h-5 group-hover:scale-125 transition-transform">⚡</span>
                   Quick Check
                 </motion.button>
               </div>
 
               <div className="max-w-2xl mx-auto space-y-4">
-                <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <div className={`${darkMode ? "bg-white/10 border-white/20" : "bg-black/10 border-black/20"} backdrop-blur-xl rounded-2xl p-6 border`}>
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mdi:shield-alert" className="w-6 h-6 text-amber-300" />
+                    <div className={`w-10 h-10 ${darkMode ? "bg-white/20" : "bg-black/20"} rounded-full flex items-center justify-center flex-shrink-0`}>
+                      <Shield className={`w-6 h-6 ${darkMode ? "text-white" : "text-black"}`} />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-bold text-white mb-2">Important Medical Disclaimer</h3>
-                      <p className="text-sm text-white/80 leading-relaxed">
+                      <h3 className={`font-bold ${darkMode ? "text-white" : "text-black"} mb-2`}>Important Medical Disclaimer</h3>
+                      <p className={`text-sm ${darkMode ? "text-white/80" : "text-black/80"} leading-relaxed`}>
                         HealthBot AI provides general health information and guidance only. This is <strong>not</strong> a
                         substitute for professional medical advice, diagnosis, or treatment. Always consult with qualified
                         healthcare providers for medical concerns.
@@ -630,17 +544,17 @@ export default function Page() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                  <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/20">
-                    <Icon icon="mdi:clock-fast" className="w-8 h-8 text-white mb-2 mx-auto" />
-                    <p className="text-white/90 font-semibold">24/7 Available</p>
+                  <div className={`${darkMode ? "bg-white/10 border-white/20" : "bg-black/10 border-black/20"} backdrop-blur-xl rounded-xl p-4 border`}>
+                    <Clock className={`w-8 h-8 ${darkMode ? "text-white" : "text-black"} mb-2 mx-auto`} />
+                    <p className={`${darkMode ? "text-white/90" : "text-black/90"} font-semibold`}>24/7 Available</p>
                   </div>
-                  <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/20">
-                    <Icon icon="mdi:shield-check" className="w-8 h-8 text-white mb-2 mx-auto" />
-                    <p className="text-white/90 font-semibold">Private & Secure</p>
+                  <div className={`${darkMode ? "bg-white/10 border-white/20" : "bg-black/10 border-black/20"} backdrop-blur-xl rounded-xl p-4 border`}>
+                    <Shield className={`w-8 h-8 ${darkMode ? "text-white" : "text-black"} mb-2 mx-auto`} />
+                    <p className={`${darkMode ? "text-white/90" : "text-black/90"} font-semibold`}>Private & Secure</p>
                   </div>
-                  <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/20">
-                    <Icon icon="mdi:brain" className="w-8 h-8 text-white mb-2 mx-auto" />
-                    <p className="text-white/90 font-semibold">AI-Powered</p>
+                  <div className={`${darkMode ? "bg-white/10 border-white/20" : "bg-black/10 border-black/20"} backdrop-blur-xl rounded-xl p-4 border`}>
+                    <Bot className={`w-8 h-8 ${darkMode ? "text-white" : "text-black"} mb-2 mx-auto`} />
+                    <p className={`${darkMode ? "text-white/90" : "text-black/90"} font-semibold`}>AI-Powered</p>
                   </div>
                 </div>
               </div>
@@ -649,7 +563,6 @@ export default function Page() {
         )}
       </AnimatePresence>
 
-      {/* -------------------- Sidebar -------------------- */}
       <AnimatePresence>
         {sidebarOpen && !showIntro && (
           <>
@@ -666,22 +579,21 @@ export default function Page() {
               animate={{ x: 0 }}
               exit={{ x: -320 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed md:static z-50 h-full w-80 flex flex-col border-r border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl shadow-2xl"
+              className={`fixed md:static z-50 h-full w-80 flex flex-col border-r ${darkMode ? "border-white/10 bg-gray-900/80" : "border-black/10 bg-white/80"} backdrop-blur-2xl shadow-2xl`}
             >
-              <header className={`px-5 py-4 bg-gradient-to-r ${activeColor} text-white relative overflow-hidden`}>
+              <header className={`px-5 py-4 bg-gradient-to-r ${darkMode ? activeColor : "from-white to-gray-200"} ${darkMode ? "text-white" : "text-black"} relative overflow-hidden`}>
                 <div className="absolute inset-0 bg-black/10" />
                 <div className="relative z-10 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <motion.div
-                      className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-xl flex items-center justify-center border border-white/30"
+                      className={`h-12 w-12 rounded-2xl ${darkMode ? "bg-white/20 border-white/30" : "bg-black/20 border-black/30"} backdrop-blur-xl flex items-center justify-center border`}
                       whileHover={{ rotate: 360, scale: 1.1 }}
                       transition={{ duration: 0.6 }}
                     >
-                      <Icon icon="mdi:hospital-box" className="h-6 w-6 text-white" />
+                      <Bot className="h-6 w-6" />
                     </motion.div>
                     <div>
                       <h3 className="font-bold text-base">HealthBot AI</h3>
-                      
                     </div>
                   </div>
 
@@ -690,31 +602,31 @@ export default function Page() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => createNewChat()}
-                      className="p-2 rounded-xl hover:bg-white/20 backdrop-blur-xl transition"
+                      className={`p-2 rounded-xl ${darkMode ? "hover:bg-white/20" : "hover:bg-black/20"} backdrop-blur-xl transition`}
                       title="New chat"
                     >
-                      <Icon icon="mdi:plus-circle" className="h-6 w-6" />
+                      <Plus className="h-6 w-6" />
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setSidebarOpen(false)}
-                      className="p-2 rounded-xl hover:bg-white/20 backdrop-blur-xl transition md:hidden"
+                      className={`p-2 rounded-xl ${darkMode ? "hover:bg-white/20" : "hover:bg-black/20"} backdrop-blur-xl transition md:hidden`}
                       title="Close"
                     >
-                      <Icon icon="mdi:close" className="h-6 w-6" />
+                      <X className="h-6 w-6" />
                     </motion.button>
                   </div>
                 </div>
               </header>
 
               <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3">
-                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                <div className={`text-xs font-bold ${darkMode ? "text-gray-400" : "text-gray-600"} uppercase tracking-wider mb-3`}>
                   Chat History ({history.length})
                 </div>
 
                 {history.length === 0 && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
+                  <div className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} text-center py-8`}>
                     No chats yet. Start a new conversation!
                   </div>
                 )}
@@ -737,26 +649,32 @@ export default function Page() {
                         whileHover={{ scale: 1.02, x: 4 }}
                         className={`w-full text-left p-4 rounded-2xl transition-all border-2 ${
                           activeIndex === idx
-                            ? "bg-gradient-to-r " + (chat.color || activeColor) + " text-white border-transparent shadow-xl"
-                            : "bg-white/50 dark:bg-gray-800/50 border-transparent hover:border-indigo-500/30 hover:shadow-lg"
+                            ? darkMode 
+                              ? "bg-gradient-to-r from-black to-gray-800 text-white border-transparent shadow-xl"
+                              : "bg-gradient-to-r from-white to-gray-200 text-black border-transparent shadow-xl"
+                            : darkMode
+                            ? "bg-gray-800/50 border-transparent hover:border-white/30 hover:shadow-lg"
+                            : "bg-white/50 border-transparent hover:border-black/30 hover:shadow-lg"
                         }`}
                       >
                         <div className="flex items-center gap-3 mb-2">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                            activeIndex === idx ? "bg-white/20" : "bg-gradient-to-br " + (chat.color || "from-indigo-500 to-purple-500")
+                            activeIndex === idx 
+                              ? darkMode ? "bg-white/20" : "bg-black/20"
+                              : darkMode ? "bg-gradient-to-br from-gray-700 to-gray-600" : "bg-gradient-to-br from-gray-300 to-gray-400"
                           }`}>
-                            <Icon icon="mdi:chat" className={`w-5 h-5 ${activeIndex === idx ? "text-white" : "text-white"}`} />
+                            <MessageSquare className="w-5 h-5" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="font-semibold text-sm truncate">{chat.title}</h4>
-                            <p className={`text-xs ${activeIndex === idx ? "text-white/80" : "text-gray-500 dark:text-gray-400"}`}>
+                            <p className={`text-xs ${activeIndex === idx ? (darkMode ? "text-white/80" : "text-black/80") : (darkMode ? "text-gray-400" : "text-gray-600")}`}>
                               {chat.messages.length} messages
                             </p>
                           </div>
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className={`text-xs ${activeIndex === idx ? "text-white/70" : "text-gray-400 dark:text-gray-500"}`}>
+                          <span className={`text-xs ${activeIndex === idx ? (darkMode ? "text-white/70" : "text-black/70") : (darkMode ? "text-gray-500" : "text-gray-600")}`}>
                             {chat.createdAt ? new Date(chat.createdAt).toLocaleDateString() : ""}
                           </span>
                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -767,10 +685,10 @@ export default function Page() {
                                 e.stopPropagation();
                                 renameChat(idx);
                               }}
-                              className="p-1.5 rounded-lg hover:bg-white/20 dark:hover:bg-gray-700"
+                              className={`p-1.5 rounded-lg ${darkMode ? "hover:bg-white/20" : "hover:bg-black/20"}`}
                               title="Rename"
                             >
-                              <Icon icon="mdi:pencil" className="h-4 w-4" />
+                              <span className="text-xs">✏️</span>
                             </motion.button>
                             <motion.button
                               whileHover={{ scale: 1.2 }}
@@ -782,7 +700,7 @@ export default function Page() {
                               className="p-1.5 rounded-lg hover:bg-red-500/20"
                               title="Delete"
                             >
-                              <Icon icon="mdi:delete" className="h-4 w-4 text-red-500" />
+                              <Trash2 className="h-4 w-4 text-red-500" />
                             </motion.button>
                           </div>
                         </div>
@@ -792,35 +710,35 @@ export default function Page() {
                 </AnimatePresence>
               </div>
 
-              <div className="border-t border-white/10 p-4 space-y-2 bg-white/30 dark:bg-gray-900/30 backdrop-blur-xl">
-                <div className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">
+              <div className={`border-t ${darkMode ? "border-white/10 bg-gray-900/30" : "border-black/10 bg-white/30"} p-4 space-y-2 backdrop-blur-xl`}>
+                <div className={`text-xs font-bold ${darkMode ? "text-gray-400" : "text-gray-600"} uppercase tracking-wider mb-3`}>
                   Quick Actions
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.02, x: 2 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={copyToClipboard}
-                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                  className={`w-full px-4 py-3 rounded-xl ${darkMode ? "bg-gradient-to-r from-gray-800 to-gray-700" : "bg-gradient-to-r from-gray-200 to-gray-300"} ${darkMode ? "text-white" : "text-black"} font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2`}
                 >
-                  <Icon icon="mdi:content-copy" className="h-5 w-5" />
+                  <Copy className="h-5 w-5" />
                   Copy Chat
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02, x: 2 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={exportChatAsJSON}
-                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                  className={`w-full px-4 py-3 rounded-xl ${darkMode ? "bg-gradient-to-r from-gray-700 to-gray-600" : "bg-gradient-to-r from-gray-300 to-gray-400"} ${darkMode ? "text-white" : "text-black"} font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2`}
                 >
-                  <Icon icon="mdi:code-json" className="h-5 w-5" />
+                  <Download className="h-5 w-5" />
                   Export JSON
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02, x: 2 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={exportChatAsText}
-                  className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                  className={`w-full px-4 py-3 rounded-xl ${darkMode ? "bg-gradient-to-r from-gray-600 to-gray-500" : "bg-gradient-to-r from-gray-400 to-gray-500"} ${darkMode ? "text-white" : "text-black"} font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2`}
                 >
-                  <Icon icon="mdi:text-box" className="h-5 w-5" />
+                  <Download className="h-5 w-5" />
                   Export Text
                 </motion.button>
               </div>
@@ -829,7 +747,6 @@ export default function Page() {
         )}
       </AnimatePresence>
 
-      {/* Floating Sidebar Toggle */}
       {!sidebarOpen && !showIntro && (
         <motion.button
           onClick={() => setSidebarOpen(true)}
@@ -837,31 +754,29 @@ export default function Page() {
           animate={{ scale: 1, rotate: 0 }}
           whileHover={{ scale: 1.1, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
-          className="fixed top-5 left-5 z-40 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-2xl shadow-2xl hover:shadow-indigo-500/50"
+          className={`fixed top-5 left-5 z-40 ${darkMode ? "bg-gradient-to-r from-gray-800 to-gray-700" : "bg-gradient-to-r from-gray-200 to-gray-300"} ${darkMode ? "text-white" : "text-black"} p-4 rounded-2xl shadow-2xl`}
           aria-label="Open menu"
         >
-          <Icon icon="mdi:menu" className="h-6 w-6" />
+          <Menu className="h-6 w-6" />
         </motion.button>
       )}
 
-      {/* -------------------- Main Chat Area -------------------- */}
       <main className={`flex-1 flex flex-col relative transition-all ${showIntro ? "blur-sm pointer-events-none" : ""}`}>
-        {/* Header */}
-        <header className={`sticky top-0 z-30 h-20 border-b border-white/10 bg-gradient-to-r ${activeColor} text-white backdrop-blur-2xl shadow-xl`}>
+        <header className={`sticky top-0 z-30 h-20 border-b ${darkMode ? "border-white/10 bg-gradient-to-r from-black to-gray-900" : "border-black/10 bg-gradient-to-r from-white to-gray-100"} ${darkMode ? "text-white" : "text-black"} backdrop-blur-2xl shadow-xl`}>
           <div className="h-full px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <motion.div
-                className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-xl flex items-center justify-center border border-white/30"
+                className={`h-12 w-12 rounded-2xl ${darkMode ? "bg-white/20 border-white/30" : "bg-black/20 border-black/30"} backdrop-blur-xl flex items-center justify-center border`}
                 animate={{ rotate: [0, 5, -5, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
               >
-                <Icon icon="mdi:robot" className="h-7 w-7 text-white" />
+                <Bot className="h-7 w-7" />
               </motion.div>
               <div>
                 <h1 className="text-lg font-bold">{activeTitle}</h1>
                 <div className="flex items-center gap-2 text-sm opacity-90">
                   <motion.div
-                    className="w-2 h-2 bg-green-400 rounded-full"
+                    className="w-2 h-2 bg-green-500 rounded-full"
                     animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
@@ -876,10 +791,10 @@ export default function Page() {
                 whileTap={{ scale: 0.9 }}
                 onClick={goPrevChat}
                 disabled={activeIndex <= 0}
-                className="p-2.5 rounded-xl hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                className={`p-2.5 rounded-xl ${darkMode ? "hover:bg-white/20" : "hover:bg-black/20"} disabled:opacity-40 disabled:cursor-not-allowed transition`}
                 title="Previous chat"
               >
-                <Icon icon="mdi:chevron-left" className="h-6 w-6" />
+                <ChevronLeft className="h-6 w-6" />
               </motion.button>
 
               <motion.button
@@ -887,48 +802,47 @@ export default function Page() {
                 whileTap={{ scale: 0.9 }}
                 onClick={goNextChat}
                 disabled={activeIndex >= history.length - 1}
-                className="p-2.5 rounded-xl hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                className={`p-2.5 rounded-xl ${darkMode ? "hover:bg-white/20" : "hover:bg-black/20"} disabled:opacity-40 disabled:cursor-not-allowed transition`}
                 title="Next chat"
               >
-                <Icon icon="mdi:chevron-right" className="h-6 w-6" />
+                <ChevronRight className="h-6 w-6" />
               </motion.button>
 
-              <div className="w-px h-6 bg-white/30 mx-1" />
+              <div className={`w-px h-6 ${darkMode ? "bg-white/30" : "bg-black/30"} mx-1`} />
 
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 180 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setDarkMode((d) => !d)}
-                className="p-2.5 rounded-xl hover:bg-white/20 transition"
+                className={`p-2.5 rounded-xl ${darkMode ? "hover:bg-white/20" : "hover:bg-black/20"} transition`}
                 title="Toggle theme"
               >
-                <Icon icon={darkMode ? "mdi:white-balance-sunny" : "mdi:moon-waning-crescent"} className="h-6 w-6" />
+                {darkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setShowFloatingMenu(!showFloatingMenu)}
-                className="p-2.5 rounded-xl hover:bg-white/20 transition"
+                className={`p-2.5 rounded-xl ${darkMode ? "hover:bg-white/20" : "hover:bg-black/20"} transition`}
                 title="More options"
               >
-                <Icon icon="mdi:dots-vertical" className="h-6 w-6" />
+                <MoreVertical className="h-6 w-6" />
               </motion.button>
             </div>
           </div>
         </header>
 
-        {/* Floating Action Menu */}
         <AnimatePresence>
           {showFloatingMenu && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -10 }}
-              className="absolute top-24 right-6 z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 p-2 min-w-[200px]"
+              className={`absolute top-24 right-6 z-40 ${darkMode ? "bg-gray-900/90 border-white/20" : "bg-white/90 border-black/20"} backdrop-blur-2xl rounded-2xl shadow-2xl border p-2 min-w-[200px]`}
             >
               <motion.button
-                whileHover={{ x: 4, backgroundColor: "rgba(99, 102, 241, 0.1)" }}
+                whileHover={{ x: 4, backgroundColor: darkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)" }}
                 onClick={() => {
                   if (!confirm("Clear all messages in current chat?")) return;
                   setMessages([]);
@@ -938,83 +852,56 @@ export default function Page() {
                 }}
                 className="w-full px-4 py-3 rounded-xl text-left flex items-center gap-3 transition"
               >
-                <Icon icon="mdi:broom" className="h-5 w-5" />
+                <Trash2 className="h-5 w-5" />
                 <span className="font-medium">Clear Chat</span>
               </motion.button>
               <motion.button
-                whileHover={{ x: 4, backgroundColor: "rgba(99, 102, 241, 0.1)" }}
+                whileHover={{ x: 4, backgroundColor: darkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)" }}
                 onClick={() => {
                   copyToClipboard();
                   setShowFloatingMenu(false);
                 }}
                 className="w-full px-4 py-3 rounded-xl text-left flex items-center gap-3 transition"
               >
-                <Icon icon="mdi:content-copy" className="h-5 w-5" />
+                <Copy className="h-5 w-5" />
                 <span className="font-medium">Copy All</span>
               </motion.button>
               <motion.button
-                whileHover={{ x: 4, backgroundColor: "rgba(99, 102, 241, 0.1)" }}
+                whileHover={{ x: 4, backgroundColor: darkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)" }}
                 onClick={() => {
                   exportChatAsJSON();
                   setShowFloatingMenu(false);
                 }}
                 className="w-full px-4 py-3 rounded-xl text-left flex items-center gap-3 transition"
               >
-                <Icon icon="mdi:download" className="h-5 w-5" />
+                <Download className="h-5 w-5" />
                 <span className="font-medium">Download</span>
               </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Disclaimer Banner */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="px-6 py-3 border-b border-white/10 bg-amber-500/10 backdrop-blur-xl"
+          className={`px-6 py-3 border-b ${darkMode ? "border-white/10 bg-yellow-900/20" : "border-black/10 bg-yellow-100/80"} backdrop-blur-xl`}
         >
           <div className="max-w-5xl mx-auto flex items-center gap-3 text-sm">
-            <Icon icon="mdi:shield-alert" className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-            <span className="text-gray-700 dark:text-gray-300 flex-1">
+            <Shield className={`h-5 w-5 ${darkMode ? "text-yellow-400" : "text-yellow-700"} flex-shrink-0`} />
+            <span className={`${darkMode ? "text-gray-300" : "text-gray-800"} flex-1`}>
               <strong>Medical Disclaimer:</strong> AI-generated health information is for educational purposes only. Always
               consult healthcare professionals for medical advice.
             </span>
-            <span className="text-xs opacity-70 hidden sm:block"></span>
           </div>
         </motion.div>
 
-        {/* Quick Suggestions */}
-        <div className="px-6 py-4 border-b border-white/10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-xl overflow-x-auto">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-center gap-3 mb-3">
-              <Icon icon="mdi:lightning-bolt" className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-              <span className="text-sm font-bold text-gray-700 dark:text-gray-300">Quick Suggestions</span>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {quickSuggestions.map((s, i) => (
-                <motion.button
-                  key={i}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => applyQuickSuggestion(s.text, true)}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-                >
-                  <Icon icon={s.icon} className="h-4 w-4" />
-                  {s.text}
-                </motion.button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Messages Area */}
         <div
           ref={chatBodyRef}
           className="flex-1 overflow-y-auto p-6 space-y-6"
           style={{
             background: darkMode
-              ? "linear-gradient(to bottom right, #0f172a, #1e1b4b)"
-              : "linear-gradient(to bottom right, #f8fafc, #e0e7ff)",
+              ? "linear-gradient(to bottom right, #000000, #1a1a1a)"
+              : "linear-gradient(to bottom right, #ffffff, #f5f5f5)",
           }}
         >
           <AnimatePresence mode="popLayout">
@@ -1029,12 +916,12 @@ export default function Page() {
                   transition={{ duration: 3, repeat: Infinity }}
                   className="mb-6"
                 >
-                  <div className="w-32 h-32 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center shadow-2xl">
-                    <Icon icon="mdi:chat-plus" className="w-16 h-16 text-white" />
+                  <div className={`w-32 h-32 ${darkMode ? "bg-gradient-to-br from-gray-800 to-gray-700" : "bg-gradient-to-br from-gray-200 to-gray-300"} rounded-3xl flex items-center justify-center shadow-2xl`}>
+                    <MessageSquare className="w-16 h-16" />
                   </div>
                 </motion.div>
-                <h2 className="text-3xl font-bold mb-3 text-gray-800 dark:text-gray-100">Start a Conversation</h2>
-                <p className="text-gray-600 dark:text-gray-400 max-w-md">
+                <h2 className={`text-3xl font-bold mb-3 ${darkMode ? "text-gray-100" : "text-gray-900"}`}>Start a Conversation</h2>
+                <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} max-w-md`}>
                   Describe your symptoms or health concerns, and I'll provide helpful information and guidance.
                 </p>
               </motion.div>
@@ -1050,30 +937,27 @@ export default function Page() {
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div className={`flex items-start gap-3 max-w-3xl ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
-                  {/* Avatar */}
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.1 }}
                     className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg ${
                       msg.role === "bot"
-                        ? "bg-gradient-to-br from-indigo-500 to-purple-500"
-                        : "bg-gradient-to-br from-pink-500 to-rose-500"
+                        ? darkMode ? "bg-gradient-to-br from-gray-700 to-gray-600" : "bg-gradient-to-br from-gray-300 to-gray-400"
+                        : darkMode ? "bg-gradient-to-br from-gray-600 to-gray-500" : "bg-gradient-to-br from-gray-400 to-gray-500"
                     }`}
                   >
-                    <Icon
-                      icon={msg.role === "bot" ? "mdi:robot" : "mdi:account-circle"}
-                      className="h-6 w-6 text-white"
-                    />
+                    {msg.role === "bot" ? <Bot className="h-6 w-6" /> : <User className="h-6 w-6" />}
                   </motion.div>
 
-                  {/* Message Bubble */}
                   <div className="flex flex-col gap-2 max-w-full">
                     <motion.div
                       whileHover={{ scale: 1.01 }}
                       className={`relative group rounded-3xl px-5 py-4 shadow-xl backdrop-blur-xl border ${
                         msg.role === "user"
-                          ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-transparent"
+                          ? darkMode 
+                            ? "bg-gradient-to-r from-gray-800 to-gray-700 text-white border-transparent"
+                            : "bg-gradient-to-r from-gray-200 to-gray-300 text-black border-transparent"
                           : darkMode
                           ? "bg-gray-800/90 text-gray-100 border-gray-700/50"
                           : "bg-white/90 text-gray-900 border-gray-200/50"
@@ -1081,28 +965,28 @@ export default function Page() {
                     >
                       <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
 
-                      {/* Timestamp */}
                       <div
                         className={`text-[10px] mt-2 flex items-center gap-2 ${
-                          msg.role === "user" ? "justify-end text-white/70" : "justify-start text-gray-500"
+                          msg.role === "user" 
+                            ? darkMode ? "justify-end text-white/70" : "justify-end text-black/70"
+                            : darkMode ? "justify-start text-gray-500" : "justify-start text-gray-600"
                         }`}
                       >
-                        <Icon icon="mdi:clock-outline" className="h-3 w-3" />
+                        <Clock className="h-3 w-3" />
                         <span>{msg.time ? new Date(msg.time).toLocaleTimeString() : ""}</span>
                       </div>
 
-                      {/* Reactions */}
                       {msg.role === "bot" && (
                         <div className="absolute -bottom-2 right-4 opacity-0 group-hover:opacity-100 transition-all">
-                          <div className="flex gap-1 bg-white dark:bg-gray-800 rounded-full px-2 py-1 shadow-lg border border-gray-200 dark:border-gray-700">
+                          <div className={`flex gap-1 ${darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"} rounded-full px-2 py-1 shadow-lg border`}>
                             {["👍", "❤️", "🎉", "🤔"].map((emoji) => (
                               <motion.button
                                 key={emoji}
                                 whileHover={{ scale: 1.3 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => addReaction(msg.id || "", emoji)}
-                                className={`text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center ${
-                                  msg.reactions?.includes(emoji) ? "bg-indigo-100 dark:bg-indigo-900" : ""
+                                className={`text-sm ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"} rounded-full w-6 h-6 flex items-center justify-center ${
+                                  msg.reactions?.includes(emoji) ? (darkMode ? "bg-gray-700" : "bg-gray-200") : ""
                                 }`}
                               >
                                 {emoji}
@@ -1113,13 +997,12 @@ export default function Page() {
                       )}
                     </motion.div>
 
-                    {/* Show reactions if any */}
                     {msg.reactions && msg.reactions.length > 0 && (
                       <div className="flex gap-1 flex-wrap pl-2">
                         {msg.reactions.map((emoji, i) => (
                           <span
                             key={i}
-                            className="px-2 py-1 bg-white/80 dark:bg-gray-800/80 rounded-full text-xs shadow"
+                            className={`px-2 py-1 ${darkMode ? "bg-gray-800/80" : "bg-white/80"} rounded-full text-xs shadow`}
                           >
                             {emoji}
                           </span>
@@ -1132,7 +1015,6 @@ export default function Page() {
             ))}
           </AnimatePresence>
 
-          {/* Typing Indicator */}
           {isTyping && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1141,27 +1023,27 @@ export default function Page() {
               className="flex justify-start"
             >
               <div className="flex items-start gap-3 max-w-3xl">
-                <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg">
-                  <Icon icon="mdi:robot" className="h-6 w-6 text-white" />
+                <div className={`flex-shrink-0 w-11 h-11 rounded-2xl ${darkMode ? "bg-gradient-to-br from-gray-700 to-gray-600" : "bg-gradient-to-br from-gray-300 to-gray-400"} flex items-center justify-center shadow-lg`}>
+                  <Bot className="h-6 w-6" />
                 </div>
-                <div className="rounded-3xl px-6 py-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+                <div className={`rounded-3xl px-6 py-4 ${darkMode ? "bg-gray-800/90 border-gray-700/50" : "bg-white/90 border-gray-200/50"} backdrop-blur-xl border shadow-xl`}>
                   <div className="flex items-center gap-2">
                     <motion.div
-                      className="w-2.5 h-2.5 bg-indigo-500 rounded-full"
+                      className={`w-2.5 h-2.5 ${darkMode ? "bg-gray-400" : "bg-gray-600"} rounded-full`}
                       animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
                       transition={{ duration: 1, repeat: Infinity, delay: 0 }}
                     />
                     <motion.div
-                      className="w-2.5 h-2.5 bg-purple-500 rounded-full"
+                      className={`w-2.5 h-2.5 ${darkMode ? "bg-gray-500" : "bg-gray-700"} rounded-full`}
                       animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
                       transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
                     />
                     <motion.div
-                      className="w-2.5 h-2.5 bg-pink-500 rounded-full"
+                      className={`w-2.5 h-2.5 ${darkMode ? "bg-gray-600" : "bg-gray-800"} rounded-full`}
                       animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
                       transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
                     />
-                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">AI is thinking...</span>
+                    <span className={`ml-2 text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>AI is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -1169,7 +1051,6 @@ export default function Page() {
           )}
         </div>
 
-        {/* Scroll to Bottom Button */}
         <AnimatePresence>
           {showScrollBtn && (
             <motion.button
@@ -1179,20 +1060,18 @@ export default function Page() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={scrollToBottom}
-              className="fixed bottom-32 right-8 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-2xl shadow-2xl hover:shadow-indigo-500/50 z-30"
+              className={`fixed bottom-32 right-8 ${darkMode ? "bg-gradient-to-r from-gray-800 to-gray-700" : "bg-gradient-to-r from-gray-200 to-gray-300"} ${darkMode ? "text-white" : "text-black"} p-4 rounded-2xl shadow-2xl z-30`}
               title="Scroll to bottom"
             >
-              <Icon icon="mdi:arrow-down" className="h-6 w-6" />
+              <span className="text-2xl">↓</span>
             </motion.button>
           )}
         </AnimatePresence>
 
-        {/* Input Area */}
         {!showIntro && (
-          <div className="border-t border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl p-6 shadow-2xl">
+          <div className={`border-t ${darkMode ? "border-white/10 bg-gray-900/80" : "border-black/10 bg-white/80"} backdrop-blur-2xl p-6 shadow-2xl`}>
             <div className="max-w-5xl mx-auto">
               <div className="flex items-end gap-3">
-                {/* Voice Recording Button */}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -1203,14 +1082,15 @@ export default function Page() {
                   className={`flex-shrink-0 p-4 rounded-2xl transition-all shadow-lg ${
                     isRecording
                       ? "bg-gradient-to-r from-red-500 to-pink-500 text-white animate-pulse"
-                      : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 text-gray-700 dark:text-gray-300"
+                      : darkMode
+                      ? "bg-gradient-to-r from-gray-700 to-gray-600 text-gray-300"
+                      : "bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700"
                   }`}
                   title={isRecording ? "Stop recording" : "Start voice input"}
                 >
-                  <Icon icon={isRecording ? "mdi:stop" : "mdi:microphone"} className="h-6 w-6" />
+                  <Mic className="h-6 w-6" />
                 </motion.button>
 
-                {/* Text Input */}
                 <div className="flex-1 relative">
                   <textarea
                     ref={textareaRef}
@@ -1221,31 +1101,28 @@ export default function Page() {
                     disabled={isTyping}
                     className={`w-full min-h-[70px] max-h-48 resize-none rounded-2xl px-5 py-4 pr-14 text-sm border-2 transition-all ${
                       darkMode
-                        ? "bg-gray-800/90 text-gray-100 border-gray-700 focus:border-indigo-500"
-                        : "bg-white/90 text-gray-900 border-gray-200 focus:border-indigo-500"
-                    } focus:ring-4 focus:ring-indigo-500/20 outline-none shadow-lg backdrop-blur-xl`}
+                        ? "bg-gray-800/90 text-gray-100 border-gray-700 focus:border-gray-500"
+                        : "bg-white/90 text-gray-900 border-gray-200 focus:border-gray-400"
+                    } focus:ring-4 ${darkMode ? "focus:ring-gray-500/20" : "focus:ring-gray-400/20"} outline-none shadow-lg backdrop-blur-xl`}
                     aria-label="Message input"
                   />
 
-                  {/* Send Button */}
                   <motion.button
                     whileHover={{ scale: 1.1, rotate: 15 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={handleSend}
                     disabled={isTyping || !input.trim()}
-                    className="absolute right-3 bottom-3 h-12 w-12 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xl hover:shadow-2xl disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className={`absolute right-3 bottom-3 h-12 w-12 rounded-xl ${darkMode ? "bg-gradient-to-r from-gray-700 to-gray-600" : "bg-gradient-to-r from-gray-300 to-gray-400"} flex items-center justify-center ${darkMode ? "text-white" : "text-black"} shadow-xl hover:shadow-2xl disabled:opacity-40 disabled:cursor-not-allowed transition-all`}
                     aria-label="Send message"
                   >
-                    <Icon icon="mdi:send" className="h-6 w-6" />
+                    <Send className="h-6 w-6" />
                   </motion.button>
 
-                  {/* Character Count */}
-                  <div className="absolute bottom-3 left-5 text-xs text-gray-400">
+                  <div className={`absolute bottom-3 left-5 text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
                     {input.length} characters
                   </div>
                 </div>
 
-                {/* Clear Button */}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -1254,22 +1131,27 @@ export default function Page() {
                     setMessages([]);
                     persistActiveMessages([]);
                   }}
-                  className="flex-shrink-0 px-5 py-4 rounded-2xl bg-gradient-to-r from-red-500 to-pink-500 text-white font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                  className={`flex-shrink-0 px-5 py-4 rounded-2xl ${darkMode ? "bg-gradient-to-r from-red-600 to-red-500" : "bg-gradient-to-r from-red-400 to-red-500"} text-white font-medium shadow-lg hover:shadow-xl transition-all flex items-center gap-2`}
                   title="Clear chat"
                 >
-                  <Icon icon="mdi:broom" className="h-5 w-5" />
+                  <Trash2 className="h-5 w-5" />
                   <span className="hidden sm:inline">Clear</span>
                 </motion.button>
               </div>
 
-              {/* Helper Text */}
-              <div className="mt-3 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <div className={`mt-3 flex items-center justify-between text-xs ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
                 <div className="flex items-center gap-4">
-                  <span>Press <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Enter</kbd> to send</span>
+                  <span>Press <kbd className={`px-2 py-1 ${darkMode ? "bg-gray-700" : "bg-gray-200"} rounded`}>Enter</kbd> to send</span>
                   <span>•</span>
-                  <span><kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Shift + Enter</kbd> for new line</span>
+                  <span><kbd className={`px-2 py-1 ${darkMode ? "bg-gray-700" : "bg-gray-200"} rounded`}>Shift + Enter</kbd> for new line</span>
                 </div>
-                <span className="opacity-60"></span>
+                <button
+                  onClick={() => window.open('/medical-analysis', '_blank')}
+                  className={`p-2 ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"} rounded`}
+                  title="Upload image"
+                >
+                  <Camera className="w-5 h-5" />
+                </button>
               </div>
             </div>
           </div>
