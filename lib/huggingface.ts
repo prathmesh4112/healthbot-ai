@@ -15,7 +15,7 @@ export interface HFModelConfig {
 
 export interface HFResponse {
   success: boolean;
-  data?: any;
+  data?: Record<string, unknown>;
   error?: string;
 }
 
@@ -87,7 +87,7 @@ export const AVAILABLE_MODELS = {
  */
 export async function queryHuggingFaceModel(
   endpoint: string,
-  data: any,
+  data: Record<string, unknown>,
   apiKey: string,
   options: {
     timeout?: number;
@@ -196,11 +196,17 @@ export async function detectObjects(
   return queryHuggingFaceModel(model.endpoint, imageBuffer, apiKey);
 }
 
+export interface AnalysisData {
+  classifications: unknown[];
+  description: string;
+  features?: string[];
+}
+
 /**
  * Generate medical report using LLM
  */
 export async function generateMedicalReport(
-  analysisData: any,
+  analysisData: AnalysisData,
   apiKey: string
 ): Promise<HFResponse> {
   const prompt = `Generate a detailed medical image analysis report based on the following information:
@@ -317,14 +323,19 @@ export async function validateApiKey(apiKey: string): Promise<boolean> {
   }
 }
 
+export interface ClassificationResult {
+  label: string;
+  score: number;
+}
+
 /**
  * Format analysis results for display
  */
-export function formatAnalysisResults(results: any): {
+export function formatAnalysisResults(results: ClassificationResult[]): {
   summary: string;
   confidence: number;
   tags: string[];
-  detailed: any[];
+  detailed: ClassificationResult[];
 } {
   if (!results || !Array.isArray(results)) {
     return {
@@ -337,7 +348,7 @@ export function formatAnalysisResults(results: any): {
 
   const topResult = results[0];
   const confidence = topResult?.score || 0;
-  const tags = results.slice(0, 5).map((r: any) => r.label);
+  const tags = results.slice(0, 5).map((r: ClassificationResult) => r.label);
   
   const summary = results.length > 0
     ? `Primary classification: ${topResult.label} (${(confidence * 100).toFixed(1)}% confidence)`
@@ -355,17 +366,17 @@ export function formatAnalysisResults(results: any): {
  * Cache management for API responses
  */
 class ResponseCache {
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
+  private cache: Map<string, { data: unknown; timestamp: number }> = new Map();
   private maxAge: number = 3600000; // 1 hour
 
-  set(key: string, data: any): void {
+  set(key: string, data: unknown): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
     });
   }
 
-  get(key: string): any | null {
+  get(key: string): unknown | null {
     const entry = this.cache.get(key);
     if (!entry) return null;
 

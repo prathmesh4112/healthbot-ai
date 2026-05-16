@@ -127,8 +127,8 @@ export function MedicalSymptomCheckerChatbot() {
               </div>
               <div className="border rounded-lg shadow-sm px-4 py-3">
                 <p className="text-sm leading-relaxed">
-                  Hello! I'm your AI Health Assistant. Please describe your
-                  symptoms, and I'll try to guide you.
+                  Hello! I&apos;m your AI Health Assistant. Please describe your
+                  symptoms, and I&apos;ll try to guide you.
                 </p>
                 <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
                   <Icon icon="mdi:clock" className="h-3 w-3" />
@@ -143,7 +143,7 @@ export function MedicalSymptomCheckerChatbot() {
             <div className="flex items-start gap-3 max-w-2xl">
               <div className="bg-primary text-white rounded-lg shadow-sm border px-4 py-3">
                 <p className="text-sm leading-relaxed">
-                  I've been experiencing headaches for the past 3 days, along
+                  I&apos;ve been experiencing headaches for the past 3 days, along
                   with nausea and sensitivity to light.
                 </p>
                 <div className="flex items-center gap-2 mt-3 text-xs opacity-80">

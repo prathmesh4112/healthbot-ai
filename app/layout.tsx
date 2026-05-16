@@ -19,7 +19,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {children}
+          <div className="min-h-screen bg-background">
+            <main className="container mx-auto px-4 py-8">
+              {children}
+            </main>
+          </div>
         </ThemeProvider>
       </body>
     </html>

@@ -1,6 +1,10 @@
 flask==3.0.0
 flask-cors==4.0.0
-pillow==10.1.0
-agno
+pillow==10.4.0
+opencv-python
 groq
 python-dotenv==1.0.0
+scikit-learn==1.5.2
+pandas==2.2.0
+numpy==1.26.0
+joblib==1.3.2
